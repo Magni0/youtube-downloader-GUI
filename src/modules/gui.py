@@ -21,8 +21,6 @@ class GUI:
         [sg.Text("URL:"), sg.InputText(key="url")],
         [sg.Text("Save Folder:"), sg.InputText(key="folder", disabled=True), sg.FolderBrowse()],
 
-        # [sg.Button],
-
         # Audio specific elements
         [sg.Text("Audio Format:", key='audio_format_text', visible=False), sg.OptionMenu(['aac', 'alac', 'flac', 'm4a', 'mp3', 'opus', 'vorbis', 'wav'], size=(15, 1), key="audio_format_options", default_value="mp3", visible=False)],
 

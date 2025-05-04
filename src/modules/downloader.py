@@ -19,14 +19,16 @@ class YTDownloader:
         slash = '/' if self.os != 'Windows' else '\\'
         binaries_folder = pathlib.Path(pathlib.Path(os.path.abspath(__file__)).parent.parent, "binaries")
 
-        if self.os == "Windows":
-            binary = f"{binaries_folder}{slash}yt-dlp.exe"
-        elif self.os == "Linux":
+        binary = f"{binaries_folder}{slash}yt-dlp.exe"
+        ffmpeg_binary = f"{binaries_folder}{slash}ffmpeg-win{slash}bin"
+        if self.os == "Linux":
             binary = f"{binaries_folder}{slash}yt-dlp_linux"
+            ffmpeg_binary = f"{binaries_folder}{slash}ffmpeg-linux{slash}bin"
         elif self.os == "Darwin":
             binary = f"{binaries_folder}{slash}yt-dlp_macos"
+            ffmpeg_binary = f"{binaries_folder}{slash}ffmpeg-mac"
 
-        self.command = f"{binary} --embed-thumbnail --add-metadata --prefer-free-formats"
+        self.command: list = [binary, "--embed-thumbnail", "--add-metadata", "--prefer-free-formats"]
         self.url = ""
         self.download_path = ""
 
@@ -38,34 +40,46 @@ class YTDownloader:
         self.audio_quality = 5
 
         # video
-        self.video_format = " -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b'"
+        self.video_format = ["-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"]
         self.playlist = False
+
+        
+        self.postproccessing = ["--ffmpeg-location", ffmpeg_binary]
     
-    def update_command(self, new_string):
-        self.command = self.command + new_string
+    def update_command(self, new_string: list):
+        for i in new_string:
+            self.command.append(str(i))
 
     def download(self):
         if not self.url or not self.download_path:
             raise ValueError("Missing url or download_path")
         
         if self.os == "Windows":
-            self.update_command(" --windows-filenames")
+            self.command.append("--windows-filenames")
         else:
-            self.update_command(" --restrict-filenames")
+            self.command.append("--restrict-filenames")
 
-        self.update_command(f" -P {self.download_path.replace(' ', '-')}")
+        # file path
+        self.update_command(["-P", f"'{self.download_path.replace(' ', '-')}'"])
 
         if self.audio_only:
-            self.update_command(f" -x --audio-format {self.audio_format}")
-            self.update_command(f" --audio-quality {self.audio_quality}")
+            self.update_command(["-x", "--audio-format", self.audio_format])
+            self.update_command(["--audio-quality", self.audio_quality])
         else:
-            self.update_command(self.video_format)
-            self.update_command(" --embed-chapters")
+            self.update_command([*self.video_format, "--embed-chapters"])
 
         if self.playlist:
-            self.update_command(f" --yes-playlist")
+            self.command.append("--yes-playlist")
+        else:
+            self.command.append("--no-playlist")
 
-        self.update_command(" " + self.url)
+        # use portable postproccessing binary as it is not guaranteed that the device will have them
+        self.update_command(self.postproccessing)
 
+        self.command.append(self.url)
+
+        # preview command
+        print(" ".join(self.command))
+        
         # run command \○/
-        subprocess.call(self.command.split(" "))
+        # subprocess.call(self.command.split(" "))

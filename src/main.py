@@ -69,6 +69,7 @@ def main():
             try:
                 yt_dlp.download()
             except Exception:
+                
                 # TODO: raise exception in window
                 continue
 
