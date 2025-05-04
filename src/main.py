@@ -8,6 +8,20 @@ BUTTON_BLUE = "#082567"
 SELECTED_COLOUR = (BUTTON_BLUE, "white")
 
 
+def error_catch(func):
+    def inner():
+        try:
+            func()
+        except Exception:
+            import traceback
+
+            with open("youtube-downloader-error-log.txt", "w") as file:
+                file.write(traceback.format_exc())
+    
+    return inner
+
+
+@error_catch
 def main():
     gui = GUI()
     yt_dlp = YTDownloader()
@@ -60,18 +74,15 @@ def main():
             yt_dlp.download_path = get("folder")
 
             if not yt_dlp.url or not yt_dlp.download_path:
-                # TODO: raise error in window
+                window["validate_error"].update(visible=True)
                 continue
+
+            window["validate_error"].update(visible=False)
 
             if yt_dlp.audio_only:
-                yt_dlp.audio_format = get("audio_format_options")
+                yt_dlp.audio_format = values["audio_format_options"]
 
-            try:
-                yt_dlp.download()
-            except Exception:
-                
-                # TODO: raise exception in window
-                continue
+            yt_dlp.download()
 
 
 if __name__ == "__main__":

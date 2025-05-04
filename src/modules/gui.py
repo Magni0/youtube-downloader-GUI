@@ -17,12 +17,13 @@ class GUI:
         return [sg.Button(i, key=f"{prefix}{i}") for i in array]
 
     MAIN_LAYOUT = [
+        [sg.Text("Please input URL and Save Folder", visible=False, key="validate_error", text_color="red")],
         [*button_options(VIDEO_AUDIO_OPTIONS), sg.Text("Playlist:"), *button_options(YES_NO_OPTIONS, prefix="playlist_")],
         [sg.Text("URL:"), sg.InputText(key="url")],
         [sg.Text("Save Folder:"), sg.InputText(key="folder", disabled=True), sg.FolderBrowse()],
 
         # Audio specific elements
-        [sg.Text("Audio Format:", key='audio_format_text', visible=False), sg.OptionMenu(['aac', 'alac', 'flac', 'm4a', 'mp3', 'opus', 'vorbis', 'wav'], size=(15, 1), key="audio_format_options", default_value="mp3", visible=False)],
+        [sg.Text("Audio Format:", key='audio_format_text', visible=False), sg.OptionMenu(['aac', 'alac', 'flac', 'm4a', 'mp3', 'opus', 'vorbis', 'wav'], size=(10, 1), key="audio_format_options", default_value="mp3", visible=False)],
 
         # video specific elements
 

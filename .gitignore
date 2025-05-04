@@ -1,3 +1,12 @@
 venv/
 .vscode/
 yt-dlp-doc.txt
+logo
+compile.sh
+build
+dist
+youtube-downloader-win.exe.spec
+binary_store
+youtube-downloader-error-log.txt
+__pycache__
+binaries/

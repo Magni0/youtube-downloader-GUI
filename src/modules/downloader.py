@@ -20,15 +20,16 @@ class YTDownloader:
         binaries_folder = pathlib.Path(pathlib.Path(os.path.abspath(__file__)).parent.parent, "binaries")
 
         binary = f"{binaries_folder}{slash}yt-dlp.exe"
-        ffmpeg_binary = f"{binaries_folder}{slash}ffmpeg-win{slash}bin"
+        ffmpeg_binary = f"{binaries_folder}{slash}"
         if self.os == "Linux":
             binary = f"{binaries_folder}{slash}yt-dlp_linux"
-            ffmpeg_binary = f"{binaries_folder}{slash}ffmpeg-linux{slash}bin"
+            ffmpeg_binary = f"{binaries_folder}{slash}"
         elif self.os == "Darwin":
             binary = f"{binaries_folder}{slash}yt-dlp_macos"
-            ffmpeg_binary = f"{binaries_folder}{slash}ffmpeg-mac"
+            ffmpeg_binary = f"{binaries_folder}{slash}"
 
-        self.command: list = [binary, "--embed-thumbnail", "--add-metadata", "--prefer-free-formats"]
+        # "--embed-thumbnail",
+        self.command: list = [binary,  "--add-metadata", "--prefer-free-formats"]
         self.url = ""
         self.download_path = ""
 
@@ -60,7 +61,7 @@ class YTDownloader:
             self.command.append("--restrict-filenames")
 
         # file path
-        self.update_command(["-P", f"'{self.download_path.replace(' ', '-')}'"])
+        self.update_command(["-P", f"{self.download_path.replace(' ', '-')}"])
 
         if self.audio_only:
             self.update_command(["-x", "--audio-format", self.audio_format])
@@ -74,12 +75,14 @@ class YTDownloader:
             self.command.append("--no-playlist")
 
         # use portable postproccessing binary as it is not guaranteed that the device will have them
-        self.update_command(self.postproccessing)
+        # self.update_command(self.postproccessing)
 
         self.command.append(self.url)
 
         # preview command
         print(" ".join(self.command))
         
-        # run command \○/
-        # subprocess.call(self.command.split(" "))
+        # run command
+        subprocess.call(self.command)
+
+        print("Done! \○/")
