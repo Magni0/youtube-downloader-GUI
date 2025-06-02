@@ -15,21 +15,11 @@ class YTDownloader:
     """
     def __init__(self) -> None:
         self.os = platform.system()
-
-        slash = '/' if self.os != 'Windows' else '\\'
-        binaries_folder = pathlib.Path(pathlib.Path(os.path.abspath(__file__)).parent.parent, "binaries")
-
-        binary = f"{binaries_folder}{slash}yt-dlp.exe"
-        ffmpeg_binary = f"{binaries_folder}{slash}"
-        if self.os == "Linux":
-            binary = f"{binaries_folder}{slash}yt-dlp_linux"
-            ffmpeg_binary = f"{binaries_folder}{slash}"
-        elif self.os == "Darwin":
-            binary = f"{binaries_folder}{slash}yt-dlp_macos"
-            ffmpeg_binary = f"{binaries_folder}{slash}"
+        self.ffmpeg_binary = ""
+        self.binary = ""
 
         # "--embed-thumbnail",
-        self.command: list = [binary,  "--add-metadata", "--prefer-free-formats"]
+        self.init_command()
         self.url = ""
         self.download_path = ""
 
@@ -44,9 +34,23 @@ class YTDownloader:
         self.video_format = ["-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"]
         self.playlist = False
 
-        
-        self.postproccessing = ["--ffmpeg-location", ffmpeg_binary]
-    
+    def init_command(self):
+        slash = '/' if self.os != 'Windows' else '\\'
+        binaries_folder = pathlib.Path(pathlib.Path(os.path.abspath(__file__)).parent.parent, "binaries")
+
+        if not self.binary or not self.ffmpeg_binary:
+            self.binary = f"{binaries_folder}{slash}yt-dlp.exe"
+            self.ffmpeg_binary = f"{binaries_folder}{slash}"
+            if self.os == "Linux":
+                self.binary = f"{binaries_folder}{slash}yt-dlp_linux"
+                self.ffmpeg_binary = f"{binaries_folder}{slash}"
+            elif self.os == "Darwin":
+                self.binary = f"{binaries_folder}{slash}yt-dlp_macos"
+                self.ffmpeg_binary = f"{binaries_folder}{slash}"
+
+        self.command: list = [self.binary,  "--add-metadata", "--prefer-free-formats"]
+        self.postproccessing = ["--ffmpeg-location", self.ffmpeg_binary]
+
     def update_command(self, new_string: list):
         for i in new_string:
             self.command.append(str(i))
@@ -61,7 +65,7 @@ class YTDownloader:
             self.command.append("--restrict-filenames")
 
         # file path
-        self.update_command(["-P", f"{self.download_path.replace(' ', '-')}"])
+        self.update_command(["-P", f"'{self.download_path}'"])
 
         if self.audio_only:
             self.update_command(["-x", "--audio-format", self.audio_format])
@@ -85,4 +89,9 @@ class YTDownloader:
         # run command
         subprocess.call(self.command)
 
-        print("Done! \○/")
+        # reset values for next download
+        self.download_path = ""
+        self.url = ""
+        self.init_command()
+
+        print(r"Done! ＼(＾O＾)／")

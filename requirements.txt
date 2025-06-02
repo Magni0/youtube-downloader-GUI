@@ -1,3 +1,2 @@
 pyasn1==0.6.1
-PySimpleGUI==5.0.10
 rsa==4.9.1
