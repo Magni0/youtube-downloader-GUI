@@ -65,7 +65,7 @@ class YTDownloader:
             self.command.append("--restrict-filenames")
 
         # file path
-        self.update_command(["-P", f"'{self.download_path}'"])
+        self.update_command(["-P", f"{self.download_path}"])
 
         if self.audio_only:
             self.update_command(["-x", "--audio-format", self.audio_format])
