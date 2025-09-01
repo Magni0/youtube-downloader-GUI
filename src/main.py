@@ -34,7 +34,7 @@ def main():
         yt_dlp.download()
 
         url.set("")
-        save_folder.set("")
+        # save_folder.set("")
 
 
     os.environ["DISPLAY"] = ":0.0"

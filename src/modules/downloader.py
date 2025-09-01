@@ -35,20 +35,20 @@ class YTDownloader:
         self.playlist = False
 
     def init_command(self):
-        slash = '/' if self.os != 'Windows' else '\\'
+        self.slash = '/' if self.os != 'Windows' else '\\'
         binaries_folder = pathlib.Path(pathlib.Path(os.path.abspath(__file__)).parent.parent, "binaries")
 
         if not self.binary or not self.ffmpeg_binary:
-            self.binary = f"{binaries_folder}{slash}yt-dlp.exe"
-            self.ffmpeg_binary = f"{binaries_folder}{slash}"
+            self.binary = f"{binaries_folder}{self.slash}yt-dlp.exe"
+            self.ffmpeg_binary = f"{binaries_folder}{self.slash}"
             if self.os == "Linux":
-                self.binary = f"{binaries_folder}{slash}yt-dlp_linux"
-                self.ffmpeg_binary = f"{binaries_folder}{slash}"
+                self.binary = f"{binaries_folder}{self.slash}yt-dlp_linux"
+                self.ffmpeg_binary = f"{binaries_folder}{self.slash}"
             elif self.os == "Darwin":
-                self.binary = f"{binaries_folder}{slash}yt-dlp_macos"
-                self.ffmpeg_binary = f"{binaries_folder}{slash}"
+                self.binary = f"{binaries_folder}{self.slash}yt-dlp_macos"
+                self.ffmpeg_binary = f"{binaries_folder}{self.slash}"
 
-        self.command: list = [self.binary,  "--add-metadata", "--prefer-free-formats"]
+        self.command: list = [self.binary, "-v",  "--add-metadata", "--prefer-free-formats"]
         self.postproccessing = ["--ffmpeg-location", self.ffmpeg_binary]
 
     def update_command(self, new_string: list):
@@ -78,6 +78,15 @@ class YTDownloader:
         else:
             self.command.append("--no-playlist")
 
+        # Hunt for Cookies to use - if no cookie found run without
+        # paths = [
+        #     f"{pathlib.Path.home()}{self.slash}AppData{self.slash}Local{self.slash}Google{self.slash}Chrome{self.slash}User\tData{self.slash}Default{self.slash}Network{self.slash}Cookies",
+        # ]
+        # for path in paths:            
+        #     if os.path.isfile(path):
+        #         self.command.append(f"--cookies '{path}'")
+        #         break
+
         # use portable postproccessing binary as it is not guaranteed that the device will have them
         # self.update_command(self.postproccessing)
 
@@ -87,11 +96,14 @@ class YTDownloader:
         print(" ".join(self.command))
         
         # run command
-        subprocess.call(self.command)
+        return_code = subprocess.call(self.command)
 
         # reset values for next download
-        self.download_path = ""
+        #self.download_path = ""
         self.url = ""
         self.init_command()
 
-        print(r"Done! ＼(＾O＾)／")
+        if return_code == 0:
+            print(r"Done! \(^O^)/")
+        else:
+            print(r"Oh nooo something broke :(")
